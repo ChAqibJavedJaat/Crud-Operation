@@ -3,58 +3,62 @@ import React, { useEffect, useState } from "react";
 import { Table, Button } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 
-export default function Read(props) {
+export default function Read() {
+    const [loading, setLoading] = useState(true)
   const [apiData, setApiData] = useState([]);
-  useEffect(() => {
+
+const getData = () => {
     axios
-      .get(`https://629f39e78b939d3dc292b3f2.mockapi.io/Crud`)
-      .then((getData) => {
-        setApiData(getData.data);
-      });
-  });
+    .get(`https://629f39e78b939d3dc292b3f2.mockapi.io/Crud`)
+    .then((getData) => {
+      setApiData(getData.data);
+      setLoading(false)
+    });
+}
 
-  const onDelete = () => {
-    axios.delete("https://629f39e78b939d3dc292b3f2.mockapi.io/Crud/id");
+  useEffect(() => {
+    getData();
+
+  },[]);
+
+  const onDelete = async ( id) => {
+    setLoading(true)
+
+    await axios.delete(`https://629f39e78b939d3dc292b3f2.mockapi.io/Crud/${id}`);
+    getData();
   };
 
-  const setID = (id) => {
-    console.log(id);
-  };
-
+ 
   return (
     <div>
-      <Table>
+      <Table className="container">
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>ID</Table.HeaderCell>
             <Table.HeaderCell>First Name</Table.HeaderCell>
             <Table.HeaderCell>Last Name</Table.HeaderCell>
-            <Table.HeaderCell>Update</Table.HeaderCell>
-            <Table.HeaderCell>Delete</Table.HeaderCell>
+            <Table.HeaderCell>Actions</Table.HeaderCell>
+           
           </Table.Row>
         </Table.Header>
-
+        {loading && "Loading..."}
         <Table.Body>
           {apiData.map((data) => {
             return (
-              <Table.Row>
+              <Table.Row key={data.id}>
                 <Table.Cell>{data.id}</Table.Cell>
                 <Table.Cell>{data.firstName}</Table.Cell>
                 <Table.Cell>{data.lastName}</Table.Cell>
                 <Table.Cell>
-                  <Link to="/update">
+                  <Link to={`/edit/${data.id}`}  >
                     <Button
-                      color="blue"
-                      onClick={() => {
-                        setID(data.id);
-                      }}
+                      className="btn btn-primary me-2"
                     >
-                      Update
+                      Edit
                     </Button>
                   </Link>
-                </Table.Cell>
-                <Table.Cell>
-                  <Button color="red" onClick={onDelete}>
+               
+                  <Button className="btn btn-danger" onClick={()=>onDelete(data.id)}>
                     Delete
                   </Button>
                 </Table.Cell>
